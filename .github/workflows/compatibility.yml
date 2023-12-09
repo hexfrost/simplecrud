@@ -3,7 +3,8 @@ name: Compatibility Check
 on:
   push:
     branches:
-      - '*'
+      - 'dev'
+      - 'staging'
 
 jobs:
   compatibility:
