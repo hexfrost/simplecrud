@@ -3,9 +3,10 @@ from typing import Dict
 
 # from cachetools import LFUCache
 from sqlalchemy import select
-from .settings import CRUDConfig
 
-session = CRUDConfig().sessionmaker
+from .settings import session
+
+
 logger = logging.getLogger(__name__)
 
 
