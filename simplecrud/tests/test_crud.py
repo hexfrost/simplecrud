@@ -3,7 +3,7 @@ import unittest
 from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
-from simplecrud.crud import create_object
+from simplecrud.crud import *
 from simplecrud.tests.factories import AsyncConnFactory
 from simplecrud.tests.utils import async_to_sync
 
@@ -80,15 +80,34 @@ class TestAsyncCRUDFunctions(unittest.TestCase):
 
     @async_to_sync
     async def test_get_object(self):
-        raise Exception("Test not complete")
+        params_1 = dict(name="test1")
+        await create_object(ExampleModel, **params_1)
+        obj = await get_object(ExampleModel, **params_1)
+        self.assertEqual(obj.name, "test1")
 
     @async_to_sync
     async def test_get_object_negative(self):
-        raise Exception("Test not complete")
+        params_1 = dict(name="test1")
+        await create_object(ExampleModel, **params_1)
+        obj = await get_object(ExampleModel, **params_1)
+        self.assertNotEqual(obj.name, "test0")
+
+    @async_to_sync
+    async def test_get_object_not_exist(self):
+        params_1 = dict(name="test1")
+        obj = await create_object(ExampleModel, **params_1)
+        none_expected = await get_object(ExampleModel, name="test0")
+        self.assertEqual(none_expected, None)
 
     @async_to_sync
     async def test_get_object_error(self):
-        raise Exception("Test not complete")
+        from sqlalchemy.exc import InvalidRequestError
+
+        params_1 = dict(name="test1")
+        obj = await create_object(ExampleModel, **params_1)
+
+        with self.assertRaises(InvalidRequestError):
+            error_expected = await get_object(ExampleModel, wrong="wrong")
 
     @async_to_sync
     async def test_get_objects(self):
