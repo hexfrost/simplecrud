@@ -17,7 +17,7 @@ class CRUDConfig:
     @property
     def sessionmaker(self) -> AsyncSession:
         if not self._sessionmaker:
-            raise ValueError("Sessionmaker is not set")
+            raise ValueError("Sessionmaker is not set. Use set_sessionmaker() method")
         return self._sessionmaker
 
     def set_sessionmaker(self, sessionmaker: AsyncSession) -> None:
