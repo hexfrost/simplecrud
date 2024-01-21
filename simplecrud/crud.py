@@ -6,7 +6,6 @@ from sqlalchemy import select
 
 from .settings import session
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -20,8 +19,7 @@ async def create_obj(model, **params):
         await conn.refresh(new_obj)
     return new_obj
 
-
-async def get_obj(model, **filters):
+async def get_object(model, **filters):
     """Get object from db"""
     key = f"{model.__name__}{filters}"
     query = select(model).filter_by(**filters)
@@ -56,9 +54,9 @@ async def get_all_with_filter(model, filters: dict):
     return objects
 
 
-async def get_objects(model, filters: Dict, limit=10, offset=10):
+async def get_objects(model, filters: Dict, limit=10, per_page=10):
     """Get objects from db"""
-    query = select(model).filter_by(**filters).limit(limit).offset(offset)
+    query = select(model).filter_by(**filters).limit(limit).offset(per_page)
     logger.debug(f"{__name__}.get_objects: query = {query}")
     async with session() as conn:
         result = await conn.execute(query)
@@ -68,21 +66,52 @@ async def get_objects(model, filters: Dict, limit=10, offset=10):
     return objects
 
 
-async def get_or_create(model, **params):
+async def get_or_create_object(model, **params):
     """Get object from db or create new one"""
     key = f"{model.__name__}{params}"
-    obj = await get_obj(model, **params)
+    obj = await get_object(model, **params)
     if not obj:
-        obj = await create_obj(model, **params)
+        obj = await create_object(model, **params)
     return obj
 
 
-async def update_obj(model, id: int, **params):
+async def create_object(model, **params):
+    """Create object in db"""
+    logger.debug(f"{__name__}.create_obj: model = {model}, params = {params}")
+    new_obj = model(**params)
     async with session() as conn:
-        obj = await get_obj(model, id=id)
+        conn.add(new_obj)
+        await conn.commit()
+        await conn.refresh(new_obj)
+    return new_obj
+
+
+def create_objects():
+    pass
+
+
+async def update_object(model, id: int, **params):
+    async with session() as conn:
+        obj = await get_object(model, id=id)
         for key, value in params.items():
             setattr(obj, key, value)
         conn.add(obj)
         await conn.commit()
         await conn.refresh(obj)
     return obj
+
+
+def update_objects():
+    pass
+
+
+def update_or_create_object():
+    pass
+
+
+async def delete_object(model, id: int):
+    pass
+
+
+def delete_objects():
+    pass
