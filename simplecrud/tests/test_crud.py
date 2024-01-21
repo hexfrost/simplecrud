@@ -1,11 +1,12 @@
 import unittest
 
 from sqlalchemy import Column, Integer, String, create_engine
+from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from simplecrud.crud import *
 from simplecrud.tests.factories import AsyncConnFactory
-from simplecrud.tests.utils import async_to_sync
+from simplecrud.utils import async_to_sync
 
 database_url = "sqlite:///./test.db"
 engine = create_engine(database_url)
@@ -88,8 +89,6 @@ class TestAsyncCRUDFunctions(unittest.TestCase):
 
     @async_to_sync
     async def test_get_object_error(self):
-        from sqlalchemy.exc import InvalidRequestError
-
         params_1 = dict(name="test1")
         obj = await create_object(ExampleModel, **params_1)
 
@@ -144,7 +143,10 @@ class TestAsyncCRUDFunctions(unittest.TestCase):
 
     @async_to_sync
     async def test_get_object_by_filters_negative(self):
-        raise Exception("Test not complete")
+        params_1 = dict(name="test1")
+        new_ = await create_object(ExampleModel, **params_1)
+        with self.assertRaises(InvalidRequestError):
+            obj = await get_object(ExampleModel, pk=new_.id)
 
     @async_to_sync
     async def test_get_object_by_filters_error(self):
