@@ -16,8 +16,8 @@ async def create_obj(model, **params):
     async with session() as conn:
         conn.add(new_obj)
         await conn.commit()
-        await conn.refresh(new_obj)
     return new_obj
+
 
 async def get_object(model, **filters):
     """Get object from db"""
@@ -82,7 +82,6 @@ async def create_object(model, **params):
     async with session() as conn:
         conn.add(new_obj)
         await conn.commit()
-        await conn.refresh(new_obj)
     return new_obj
 
 
@@ -90,15 +89,19 @@ def create_objects():
     pass
 
 
-async def update_object(model, id: int, **params):
+async def update_object(obj, **params):
     async with session() as conn:
-        obj = await get_object(model, id=id)
         for key, value in params.items():
             setattr(obj, key, value)
         conn.add(obj)
         await conn.commit()
-        await conn.refresh(obj)
     return obj
+
+
+async def update_object_by_id(model, id: int, **params):
+    obj = await get_object(model, id=id)
+    updated_obj = await update_object(obj, **params)
+    return updated_obj
 
 
 def update_objects():
