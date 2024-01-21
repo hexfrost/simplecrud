@@ -1,0 +1,16 @@
+name: Publish Release to PYPI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - name: Build and Publish
+        uses: actions/checkout@v2
+      - run: poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
+      - run: poetry publish --build
