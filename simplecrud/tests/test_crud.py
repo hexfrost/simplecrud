@@ -67,13 +67,7 @@ class TestAsyncCRUDFunctions(unittest.TestCase):
         self.assertEqual(new_obj_2.name, "test2")
 
     @async_to_sync
-    async def test_async_create_obj_negative(self):
-        params_1 = dict(name="test1")
-        new_obj_1 = await create_object(ExampleModel, **params_1)
-        self.assertNotEqual(new_obj_1.name, "test0")
-
-    @async_to_sync
-    async def test_async_create_obj_params_error(self):
+    async def test_create_obj_params_error(self):
         params_1 = dict(name="test1", wrong="wrong")
         with self.assertRaises(TypeError):
             new_obj_1 = await create_object(ExampleModel, **params_1)
@@ -84,13 +78,6 @@ class TestAsyncCRUDFunctions(unittest.TestCase):
         await create_object(ExampleModel, **params_1)
         obj = await get_object(ExampleModel, **params_1)
         self.assertEqual(obj.name, "test1")
-
-    @async_to_sync
-    async def test_get_object_negative(self):
-        params_1 = dict(name="test1")
-        await create_object(ExampleModel, **params_1)
-        obj = await get_object(ExampleModel, **params_1)
-        self.assertNotEqual(obj.name, "test0")
 
     @async_to_sync
     async def test_get_object_not_exist(self):
@@ -110,12 +97,15 @@ class TestAsyncCRUDFunctions(unittest.TestCase):
             error_expected = await get_object(ExampleModel, wrong="wrong")
 
     @async_to_sync
-    async def test_get_objects(self):
-        raise Exception("Test not complete")
-
-    @async_to_sync
-    async def test_get_objects_negative(self):
-        raise Exception("Test not complete")
+    async def test_get_all_objects(self):
+        all_ = await get_all(ExampleModel)
+        self.assertEqual(len(all_), 0)
+        for i in range(5):
+            params_1 = dict(name=f"test{i}")
+            await create_object(ExampleModel, **params_1)
+        all_ = await get_all(ExampleModel)
+        self.assertEqual(len(all_), 5)
+        self.assertTrue(isinstance(all_, list))
 
     @async_to_sync
     async def test_get_objects_error(self):
@@ -147,7 +137,10 @@ class TestAsyncCRUDFunctions(unittest.TestCase):
 
     @async_to_sync
     async def test_get_object_by_filters(self):
-        raise Exception("Test not complete")
+        params_1 = dict(name="test1")
+        new_ = await create_object(ExampleModel, **params_1)
+        obj = await get_object(ExampleModel, id=new_.id)
+        self.assertEqual(obj.name ,"test1")
 
     @async_to_sync
     async def test_get_object_by_filters_negative(self):
