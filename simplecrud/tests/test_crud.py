@@ -1,6 +1,5 @@
 import time
 import unittest
-from unittest import skip
 
 from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.exc import InvalidRequestError
@@ -24,30 +23,6 @@ class ExampleModel(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
-
-
-class TestCRUDFunctions(unittest.TestCase):
-
-    def setUp(self):
-        Base.metadata.create_all(engine)
-
-    def tearDown(self):
-        Base.metadata.drop_all(engine)
-
-    def test_create_obj(self):
-        params = dict(name="test")
-        new_obj = ExampleModel(**params)
-        with Session(engine) as conn:
-            conn.add(new_obj)
-            conn.commit()
-            conn.refresh(new_obj)
-
-        self.assertEqual(new_obj.name, "test")
-
-    def test_create_obj_wrong_params(self):
-        params = dict(name="test", wrong="wrong")
-        with self.assertRaises(TypeError):
-            new_obj = ExampleModel(**params)
 
 
 class TestAsyncCRUDFunctions(unittest.TestCase):
@@ -74,6 +49,17 @@ class TestAsyncCRUDFunctions(unittest.TestCase):
         params_1 = dict(name="test_create_obj_params_error", wrong="wrong")
         with self.assertRaises(TypeError):
             new_obj_1 = await create_object(ExampleModel, **params_1)
+
+    @async_to_sync
+    async def test_bulk_create(self):
+        all_ = await get_all(ExampleModel)
+        self.assertEqual(len(all_), 0)
+        data = [dict(name=f"test_bulk_create{i}") for i in range(1, 11)]
+        objects = await bulk_create(ExampleModel, data)
+        all_ = await get_all(ExampleModel)
+        self.assertEqual(len(all_), 10)
+        for i in range(1, 11):
+            self.assertEqual(all_[i - 1].name, f"test_bulk_create{i}")
 
     @async_to_sync
     async def test_get_object(self):
@@ -115,25 +101,42 @@ class TestAsyncCRUDFunctions(unittest.TestCase):
         self.assertEqual(len(all_), 0)
         self.assertTrue(isinstance(all_, list))
 
-    #
-    @skip
-    async def test_get_all_error(self):
-        raise Exception("Test not complete")
-
-    #
-    @skip
+    @async_to_sync
     async def test_get_all_with_filter(self):
-        raise Exception("Test not complete")
+        for i in range(1, 6):
+            params_1 = dict(name=f"test_get_all_with_filter{i}")
+            await create_object(ExampleModel, params_1)
+        all_ = await get_all_with_filter(ExampleModel, dict(name="test_get_all_with_filter1"))
+        self.assertEqual(len(all_), 1)
 
-    #
-    @skip
-    async def test_get_all_with_filter_negative(self):
-        raise Exception("Test not complete")
+    # TODO: Add test for multiple filter parameters
 
-    #
-    @skip
+    @async_to_sync
     async def test_get_all_with_filter_error(self):
-        raise Exception("Test not complete")
+        await create_object(ExampleModel, dict(name="test_get_all_with_filter_negative"))
+        with self.assertRaises(InvalidRequestError):
+            await get_all_with_filter(ExampleModel, dict(wrong="wrong"))
+
+    @async_to_sync
+    async def test_get_all_with_filter_negative(self):
+        for i in range(1, 6):
+            params_1 = dict(name=f"test_get_all_with_filter{i}")
+            await create_object(ExampleModel, params_1)
+        all_ = await get_all_with_filter(ExampleModel, dict(name="not_exist"))
+        self.assertEqual(len(all_), 0)
+
+    @async_to_sync
+    async def test_get_objects_with_limit_and_per_page(self):
+        for i in range(1, 30):
+            params_1 = dict(name=f"test_get_objects_with_limit_and_ofset{i}")
+            await create_object(ExampleModel, params_1)
+        ten = await get_objects(ExampleModel, {}, limit=10, offset=10)
+        self.assertEqual(len(ten), 10)
+        one = await get_objects(ExampleModel, {}, limit=1, offset=1)
+        self.assertEqual(len(one), 1)
+        second = await get_objects(ExampleModel, {}, limit=1, offset=2)
+        self.assertEqual(len(second), 1)
+        self.assertEqual(second[0].id, 3)
 
     @async_to_sync
     async def test_get_object_by_filters(self):
@@ -148,10 +151,6 @@ class TestAsyncCRUDFunctions(unittest.TestCase):
         new_ = await create_object(ExampleModel, params_1)
         with self.assertRaises(InvalidRequestError):
             obj = await get_object(ExampleModel, filters=dict(pk=new_.id))
-
-    @skip
-    async def test_get_object_by_filters_error(self):
-        raise Exception("Test not complete")
 
     @async_to_sync
     async def test_get_or_create_object(self):
@@ -174,6 +173,20 @@ class TestAsyncCRUDFunctions(unittest.TestCase):
 
     @async_to_sync
     async def test_update_or_error(self):
+        obj = await create_object(ExampleModel, dict(name="test_update_or_error"))
+        await update_or_error(obj, dict(name="test_update_or_error_updated"))
+        upd_obj = await get_object(ExampleModel, dict(id=obj.id))
+        self.assertEqual(upd_obj.id, obj.id)
+        self.assertEqual(upd_obj.name, "test_update_or_error_updated")
+
+    @async_to_sync
+    async def test_update_or_error_error(self):
+        obj = await create_object(ExampleModel, dict(name="test_update_or_error"))
+        with self.assertRaises(AttributeError):
+            await update_or_error(obj, dict(wrong="wrong"))
+
+    @async_to_sync
+    async def test_update_or_error_negative(self):
         params_1 = dict(name="test_update_object")
         obj1 = await create_object(ExampleModel, params_1)
         wrong_params = dict(wrong="test_update_object2")
@@ -196,9 +209,18 @@ class TestAsyncCRUDFunctions(unittest.TestCase):
     async def test_update_or_error(self):
         params_1 = dict(name="test1")
         obj1 = await create_object(ExampleModel, params_1)
-        with self.assertRaises(AttributeError):
-            wrong_params = dict(wrong="wrong")
-            obj2 = await update_or_error(obj1, wrong_params)
+        params_2 = dict(name="test2")
+        obj2 = await update_or_error(obj1, params_2)
+        self.assertEqual(obj2.name, "test2")
+
+    @async_to_sync
+    async def test_update_by_id(self):
+        params_1 = dict(name="test1")
+        obj1 = await create_object(ExampleModel, params_1)
+        id_ = obj1.id
+        params_2 = dict(name="test2")
+        obj2 = await update_object_by_id(ExampleModel, id_, params_2)
+        self.assertEqual(obj2.name, "test2")
 
     @async_to_sync
     async def test_update_or_create_object(self):
@@ -211,9 +233,22 @@ class TestAsyncCRUDFunctions(unittest.TestCase):
         self.assertEqual(new_2.name, "test_update_or_create_object2")
         self.assertEqual(new_1.id, new_2.id)
 
-    @skip
-    async def test_update_or_create_object_error(self):
-        raise Exception("Test not complete")
+    @async_to_sync
+    async def test_bulk_update(self):
+        all_ = await get_all(ExampleModel)
+        self.assertEqual(len(all_), 0)
+        for i in range(1, 11):
+            params_1 = dict(name=f"test_bulk_update{i}")
+            await create_object(ExampleModel, params_1)
+        all_ = await get_all(ExampleModel)
+        self.assertEqual(len(all_), 10)
+        new_data = dict(name="test_bulk_update_updated")
+        objects = await bulk_update(all_, new_data)
+        self.assertEqual(len(objects), 10)
+        self.assertEqual(list, type(objects), "Result must be list")
+        all_ = await get_all(ExampleModel)
+        for obj in all_:
+            self.assertEqual("test_bulk_update_updated", obj.name)
 
     @async_to_sync
     async def test_delete_object(self):
@@ -229,14 +264,6 @@ class TestAsyncCRUDFunctions(unittest.TestCase):
         get_ = await get_object(ExampleModel, filters=dict(id=new_1.id))
         self.assertEqual(len(all_), 0)
 
-    @skip
-    async def test_delete_object_negative(self):
-        raise Exception("Test not complete")
-
-    @skip
-    async def test_delete_object_error(self):
-        raise Exception("Test not complete")
-
     @async_to_sync
     async def test_delete_objects(self):
         for i in range(1, 12):
@@ -250,7 +277,7 @@ class TestAsyncCRUDFunctions(unittest.TestCase):
         self.assertEqual(all_[0].id, 11)
 
     @async_to_sync
-    async def test_delete_objects(self):
+    async def test_bulk_delete(self):
         for i in range(1, 12):
             params_1 = dict(name=f"test_delete_objects{i}")
             await create_object(ExampleModel, params_1)
@@ -260,8 +287,6 @@ class TestAsyncCRUDFunctions(unittest.TestCase):
         all_ = await get_all(ExampleModel)
         self.assertEqual(0, len(all_))
 
-
-
     @async_to_sync
     async def test_bulk_delete_by_id(self):
         for i in range(1, 12):
@@ -269,6 +294,6 @@ class TestAsyncCRUDFunctions(unittest.TestCase):
             await create_object(ExampleModel, params_1)
         ids = [i.id for i in await get_all(ExampleModel)]
         self.assertEqual(11, len(ids))
-        await bulk_delete(ExampleModel, ids)
+        await bulk_delete_by_id(ExampleModel, ids)
         all_ = await get_all(ExampleModel)
         self.assertEqual(0, len(all_))
