@@ -7,10 +7,10 @@ SimpleCRUD is a library that provides a simple way to create CRUD commands for S
 ## Installation
 
 ```bash
-pip install simplecrud
+pip install hexfrost-simplecrud
 ```
 ```
-poetry add simplecrud
+poetry add hexfrost-simplecrud
 ```
 
 ## Usage

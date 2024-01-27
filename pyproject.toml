@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "hexfrost-simplecrud"
-version = "0.1.0"
-description = "library with operation like (get, create, update, delete) for SQLAlchemy ORM"
+version = "0.2.0b0"
+description = "Library with operation like (get, create, update, delete) for SQLAlchemy ORM"
 authors = ["Ilia Kaziamov <kaziamov@outlook.com>"]
 packages = [
     { include = "simplecrud" },

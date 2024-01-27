@@ -1,27 +1,18 @@
 import logging
 from typing import Dict
 
-# from cachetools import LFUCache
 from sqlalchemy import select, delete
-
-from .settings import session
 from .utils import inject_connection
-
-logger = logging.getLogger(__name__)
 
 
 # READ / GET
 @inject_connection
 async def get_object(model, filters, conn=None):
     """Get object from db"""
-    key = f"{model.__name__}{filters}"
     query = select(model).filter_by(**filters)
-    logger.debug(f"{__name__}.get_obj: query = {query}")
     async with conn:
         result = await conn.execute(query)
-    logger.debug(f"{__name__}.get_obj: result = {result}")
     obj = result.scalars().first()
-    logger.debug(f"{__name__}.get_obj: obj = {obj}")
     return obj
 
 
@@ -31,9 +22,7 @@ async def get_all(model, conn=None):
     query = select(model)
     async with conn:
         result = await conn.execute(query)
-    logger.debug(f"{__name__}.get_all: result = {result}")
     objects = result.scalars().all()
-    logger.debug(f"{__name__}.get_all: obj = {objects}")
     return objects
 
 
@@ -43,9 +32,7 @@ async def get_all_with_filter(model, filters: dict, conn=None):
     query = select(model).filter_by(**filters)
     async with conn:
         result = await conn.execute(query)
-    logger.debug(f"{__name__}.get_all: result = {result}")
     objects = result.scalars().all()
-    logger.debug(f"{__name__}.get_all: obj = {objects}")
     return objects
 
 
@@ -53,18 +40,15 @@ async def get_all_with_filter(model, filters: dict, conn=None):
 async def get_objects(model, filters: Dict, limit=10, per_page=10, conn=None):
     """Get objects from db"""
     query = select(model).filter_by(**filters).limit(limit).offset(per_page)
-    logger.debug(f"{__name__}.get_objects: query = {query}")
     async with conn:
         result = await conn.execute(query)
-    logger.debug(f"{__name__}.get_objects: result = {result}")
     objects = result.scalars().all()
-    logger.debug(f"{__name__}.get_objects: obj = {objects}")
     return objects
 
 
+@inject_connection
 async def get_or_create_object(model, params, conn=None):
     """Get object from db or create new one"""
-    key = f"{model.__name__}{params}"
     obj = await get_object(model, params, conn=conn)
     if not obj:
         obj = await create_object(model, params, conn=conn)
@@ -75,7 +59,6 @@ async def get_or_create_object(model, params, conn=None):
 @inject_connection
 async def create_object(model, params, conn=None):
     """Create object in db"""
-    logger.debug(f"{__name__}.create_obj: model = {model}, params = {params}")
     new_obj = model(**params)
     async with conn:
         conn.add(new_obj)
@@ -126,13 +109,17 @@ async def update_or_error(obj, params, conn=None):
 
 @inject_connection
 async def update_object_by_id(model, id: int, params, conn=None):
+    """Update object in db by id"""
     obj = await get_object(model, id=id)
     updated_obj = await update_object(obj, params, conn=conn)
     return updated_obj
 
 
-def bulk_update():
-    pass
+@inject_connection
+async def bulk_update(objects, conn=None):
+    """Bulk update objects in db"""
+    for obj in objects:
+        await update_object(obj, conn=conn)
 
 
 @inject_connection
@@ -155,7 +142,6 @@ async def delete_object_by_id(model, id_: int, conn=None):
     async with conn:
         await conn.execute(query)
         await conn.commit()
-    logger.debug(f"{__name__}.delete_object_by_id: model = {model}, id = {id_}")
     return True
 
 
@@ -171,4 +157,3 @@ async def bulk_delete_by_id(model, ids, conn=None):
     for id_ in ids:
         await delete_object_by_id(model, id_, conn=conn)
     return True
-
