@@ -46,6 +46,7 @@ async def get_objects(model, filters: Dict, limit=10, per_page=10, conn=None):
     return objects
 
 
+@inject_connection
 async def get_or_create_object(model, params, conn=None):
     """Get object from db or create new one"""
     obj = await get_object(model, params, conn=conn)
