@@ -1,3 +1,4 @@
+import time
 import unittest
 from unittest import skip
 
@@ -192,13 +193,12 @@ class TestAsyncCRUDFunctions(unittest.TestCase):
         self.assertFalse(hasattr(obj2, "wrong"))
 
     @async_to_sync
-    async def test_update_object_error(self):
+    async def test_update_or_error(self):
         params_1 = dict(name="test1")
         obj1 = await create_object(ExampleModel, params_1)
-        with self.assertRaises(InvalidRequestError):
+        with self.assertRaises(AttributeError):
             wrong_params = dict(wrong="wrong")
-        obj2 = await update_object(obj1, wrong_params)
-        obj3 = await get_object(ExampleModel, filters=dict(id=obj1.id))
+            obj2 = await update_or_error(obj1, wrong_params)
 
     @async_to_sync
     async def test_update_or_create_object(self):
@@ -210,10 +210,6 @@ class TestAsyncCRUDFunctions(unittest.TestCase):
         new_2 = await update_or_create_object(ExampleModel, params_1, params_2)
         self.assertEqual(new_2.name, "test_update_or_create_object2")
         self.assertEqual(new_1.id, new_2.id)
-
-    @skip
-    async def test_update_or_create_object_negative(self):
-        raise Exception("Test not complete")
 
     @skip
     async def test_update_or_create_object_error(self):
@@ -247,16 +243,32 @@ class TestAsyncCRUDFunctions(unittest.TestCase):
             params_1 = dict(name=f"test_delete_objects{i}")
             await create_object(ExampleModel, params_1)
         all_ = await get_all(ExampleModel)
-        result = await delete_objects(all_[0:11])
+        result = await bulk_delete(all_[0:10])
         all_ = await get_all(ExampleModel)
-        self.assertEqual(len(all_), 1)
+        self.assertEqual(1, len(all_))
         self.assertEqual(all_[0].name, "test_delete_objects11")
         self.assertEqual(all_[0].id, 11)
 
-    @skip
-    async def test_delete_objects_negative(self):
-        raise Exception("Test not complete")
+    @async_to_sync
+    async def test_delete_objects(self):
+        for i in range(1, 12):
+            params_1 = dict(name=f"test_delete_objects{i}")
+            await create_object(ExampleModel, params_1)
+        objects = await get_all(ExampleModel)
+        self.assertEqual(11, len(objects))
+        await bulk_delete(objects)
+        all_ = await get_all(ExampleModel)
+        self.assertEqual(0, len(all_))
 
-    @skip
-    async def test_delete_objects_error(self):
-        raise Exception("Test not complete")
+
+
+    @async_to_sync
+    async def test_bulk_delete_by_id(self):
+        for i in range(1, 12):
+            params_1 = dict(name=f"test_delete_objects{i}")
+            await create_object(ExampleModel, params_1)
+        ids = [i.id for i in await get_all(ExampleModel)]
+        self.assertEqual(11, len(ids))
+        await bulk_delete(ExampleModel, ids)
+        all_ = await get_all(ExampleModel)
+        self.assertEqual(0, len(all_))

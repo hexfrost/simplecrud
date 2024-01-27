@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from functools import wraps
 
 
@@ -20,13 +21,27 @@ def inject_connection(func):
     @wraps(func)
     def inner(*args, **kwargs):
         from simplecrud.settings import session
-        if not kwargs.get('conn'):
+        if kwargs.get('conn') is None:
             kwargs['conn'] = session()
         result = func(*args, **kwargs)
-        try:
-            kwargs['conn'].close()
-        except:
-            pass
+        # try:
+        #     kwargs['conn'].close()
+        # except:
+        #     pass
+        return result
+
+    return inner
+
+
+def add_log(func):
+    """Decorator to add log"""
+
+    @wraps(func)
+    def inner(*args, **kwargs):
+        logger = logging.getLogger(__name__)
+        logger.debug(f"{__name__}.{func.__name__}: args = {args}, kwargs = {kwargs}")
+        result = func(*args, **kwargs)
+        logger.debug(f"{__name__}.{func.__name__}: result = {result}")
         return result
 
     return inner
