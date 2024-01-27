@@ -92,7 +92,7 @@ class TestAsyncCRUDFunctions(unittest.TestCase):
         self.assertTrue(isinstance(all_, list))
 
     #
-    @async_to_sync
+    @skip
     async def test_get_all_error(self):
         raise Exception("Test not complete")
 
