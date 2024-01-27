@@ -1,11 +1,8 @@
 import logging
 from typing import Dict
 
-# from cachetools import LFUCache
 from sqlalchemy import select, delete
 from .utils import inject_connection
-
-logger = logging.getLogger(__name__)
 
 
 # READ / GET
@@ -111,13 +108,17 @@ async def update_or_error(obj, params, conn=None):
 
 @inject_connection
 async def update_object_by_id(model, id: int, params, conn=None):
+    """Update object in db by id"""
     obj = await get_object(model, id=id)
     updated_obj = await update_object(obj, params, conn=conn)
     return updated_obj
 
 
-def bulk_update():
-    pass
+@inject_connection
+async def bulk_update(objects, conn=None):
+    """Bulk update objects in db"""
+    for obj in objects:
+        await update_object(obj, conn=conn)
 
 
 @inject_connection
@@ -140,7 +141,6 @@ async def delete_object_by_id(model, id_: int, conn=None):
     async with conn:
         await conn.execute(query)
         await conn.commit()
-    logger.debug(f"{__name__}.delete_object_by_id: model = {model}, id = {id_}")
     return True
 
 
