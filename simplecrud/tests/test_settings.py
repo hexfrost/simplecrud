@@ -4,6 +4,10 @@ from simplecrud.settings import CRUDConfig
 
 
 class TestCRUDConfig(unittest.TestCase):
+
+    def setUp(self):
+        CRUDConfig._instance = None
+
     def test_singleton(self):
         config1 = CRUDConfig()
         config2 = CRUDConfig()

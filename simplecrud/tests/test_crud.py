@@ -250,7 +250,7 @@ class TestAsyncCRUDFunctions(unittest.TestCase):
         self.assertEqual(all_[0].id, 11)
 
     @async_to_sync
-    async def test_delete_objects(self):
+    async def test_bulk_delete(self):
         for i in range(1, 12):
             params_1 = dict(name=f"test_delete_objects{i}")
             await create_object(ExampleModel, params_1)
@@ -260,8 +260,6 @@ class TestAsyncCRUDFunctions(unittest.TestCase):
         all_ = await get_all(ExampleModel)
         self.assertEqual(0, len(all_))
 
-
-
     @async_to_sync
     async def test_bulk_delete_by_id(self):
         for i in range(1, 12):
@@ -269,6 +267,6 @@ class TestAsyncCRUDFunctions(unittest.TestCase):
             await create_object(ExampleModel, params_1)
         ids = [i.id for i in await get_all(ExampleModel)]
         self.assertEqual(11, len(ids))
-        await bulk_delete(ExampleModel, ids)
+        await bulk_delete_by_id(ExampleModel, ids)
         all_ = await get_all(ExampleModel)
         self.assertEqual(0, len(all_))
