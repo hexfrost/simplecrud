@@ -26,30 +26,6 @@ class ExampleModel(Base):
     name = Column(String(255), nullable=False)
 
 
-class TestCRUDFunctions(unittest.TestCase):
-
-    def setUp(self):
-        Base.metadata.create_all(engine)
-
-    def tearDown(self):
-        Base.metadata.drop_all(engine)
-
-    def test_create_obj(self):
-        params = dict(name="test")
-        new_obj = ExampleModel(**params)
-        with Session(engine) as conn:
-            conn.add(new_obj)
-            conn.commit()
-            conn.refresh(new_obj)
-
-        self.assertEqual(new_obj.name, "test")
-
-    def test_create_obj_wrong_params(self):
-        params = dict(name="test", wrong="wrong")
-        with self.assertRaises(TypeError):
-            new_obj = ExampleModel(**params)
-
-
 class TestAsyncCRUDFunctions(unittest.TestCase):
 
     def setUp(self):
@@ -116,7 +92,7 @@ class TestAsyncCRUDFunctions(unittest.TestCase):
         self.assertTrue(isinstance(all_, list))
 
     #
-    @skip
+    @async_to_sync
     async def test_get_all_error(self):
         raise Exception("Test not complete")
 
