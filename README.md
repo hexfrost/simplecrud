@@ -5,6 +5,8 @@
 # SimpleCRUD
 SimpleCRUD is a library that provides a simple way to create CRUD commands for SQLAlchemy models.
 
+***
+
 ## Installation
 
 ```bash
@@ -13,6 +15,8 @@ pip install hexfrost-simplecrud
 ```
 poetry add hexfrost-simplecrud
 ```
+
+***
 
 ## Usage
 
@@ -77,18 +81,19 @@ async def example_func():
 - `bulk_delete` - bulk delete objects
 - `bulk_delete_by_id` - bulk delete objects by id
 
-## License
-
+***
 
 ## Contributing
 
 This project is open for contributions. Feel free to open an issue or create a pull request.
 
+Dev version status: 
 [![flake8](https://github.com/hexfrost/simplecrud/actions/workflows/linter.yml/badge.svg?branch=dev)](https://github.com/hexfrost/simplecrud/actions/workflows/linter.yml)
+[![Coverage](https://github.com/hexfrost/simplecrud/actions/workflows/coverage.yml/badge.svg?branch=dev)](https://github.com/hexfrost/simplecrud/actions/workflows/coverage.yml)
 
+***
 
+## License
 
-
-
-
+```GNU GENERAL PUBLIC LICENSE Version 3```
 
