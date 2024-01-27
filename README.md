@@ -1,5 +1,6 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/d33ecb2661fb7aedf516/maintainability)](https://codeclimate.com/github/hexfrost/sqlalchemy-models-commands/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/d33ecb2661fb7aedf516/test_coverage)](https://codeclimate.com/github/hexfrost/sqlalchemy-models-commands/test_coverage)
+[![flake8](https://github.com/hexfrost/simplecrud/actions/workflows/linter.yml/badge.svg?branch=staging)](https://github.com/hexfrost/simplecrud/actions/workflows/linter.yml)
 
 # SimpleCRUD
 SimpleCRUD is a library that provides a simple way to create CRUD commands for SQLAlchemy models.
@@ -76,11 +77,14 @@ async def example_func():
 - `bulk_delete` - bulk delete objects
 - `bulk_delete_by_id` - bulk delete objects by id
 
+## License
+
 
 ## Contributing
 
 This project is open for contributions. Feel free to open an issue or create a pull request.
 
+[![flake8](https://github.com/hexfrost/simplecrud/actions/workflows/linter.yml/badge.svg?branch=dev)](https://github.com/hexfrost/simplecrud/actions/workflows/linter.yml)
 
 
 
