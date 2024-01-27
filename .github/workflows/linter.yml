@@ -2,7 +2,7 @@ name: lint-test
 
 on:
   push:
-    branches: [ "dev" ]
+    branches: [ "dev", "staging" ]
 
 jobs:
   build:
