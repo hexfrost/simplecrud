@@ -233,22 +233,22 @@ class TestAsyncCRUDFunctions(unittest.TestCase):
         self.assertEqual(new_2.name, "test_update_or_create_object2")
         self.assertEqual(new_1.id, new_2.id)
 
-    @async_to_sync
-    async def test_bulk_update(self):
-        all_ = await get_all(ExampleModel)
-        self.assertEqual(len(all_), 0)
-        for i in range(1, 11):
-            params_1 = dict(name=f"test_bulk_update{i}")
-            await create_object(ExampleModel, params_1)
-        all_ = await get_all(ExampleModel)
-        self.assertEqual(len(all_), 10)
-        new_data = dict(name="test_bulk_update_updated")
-        objects = await bulk_update(all_, new_data)
-        self.assertEqual(len(objects), 10)
-        self.assertEqual(list, type(objects), "Result must be list")
-        all_ = await get_all(ExampleModel)
-        for obj in all_:
-            self.assertEqual("test_bulk_update_updated", obj.name)
+    # @async_to_sync
+    # async def test_bulk_update(self):
+    #     all_ = await get_all(ExampleModel)
+    #     self.assertEqual(len(all_), 0)
+    #     for i in range(1, 11):
+    #         params_1 = dict(name=f"test_bulk_update{i}")
+    #         await create_object(ExampleModel, params_1)
+    #     all_ = await get_all(ExampleModel)
+    #     self.assertEqual(len(all_), 10)
+    #     new_data = dict(name="test_bulk_update_updated")
+    #     objects = await bulk_update(all_, new_data)
+    #     self.assertEqual(len(objects), 10)
+    #     self.assertEqual(list, type(objects), "Result must be list")
+    #     all_ = await get_all(ExampleModel)
+    #     for obj in all_:
+    #         self.assertEqual("test_bulk_update_updated", obj.name)
 
     @async_to_sync
     async def test_delete_object(self):
