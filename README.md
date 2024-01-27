@@ -15,8 +15,14 @@ poetry add hexfrost-simplecrud
 
 ## Usage
 
+1. Create a model
+2. Create a CRUDConfig
+3. Set sessionmaker to CRUDConfig
+4. Import CRUD functions
+5. Use CRUD functions and enjoy
 
 ### Example usage
+
 ```python
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
@@ -40,18 +46,41 @@ CRUDConfig.sessionmaker(async_sessionmaker)
 async def example_func():
 
     # Create a model
-    new_model = await create_obj(model, name="test", description="test")
+    new_model = await create_object(model, name="test", description="test")
 
     # Get all models
     all_objs = await get_all(model)
 
     # Update a model
-    updated_obj = await update_obj(model, name="test2", description="test2")
+    updated_obj = await update_object(model, name="test2", description="test2")
 
     # Delete a model
-    await delete_obj(model, name="test2", description="test2")
+    await delete_object(model, name="test2", description="test2")
 
 ```
+
+### Avaliable functions:
+- `get_object` - get a single object
+- `get_all` - get all objects
+- `get_all_with_filter` - get all objects with filter
+- `get_objects` - get all objects with filter, limit and offset
+- `get_or_create_object` - get or create an object
+- `create_object` - create an object
+- `bulk_create` - create multiple objects
+- `update_object` - update an object
+- `update_or_error` - update an object or raise an error
+- `update_object_by_id` - update an object by id
+- `update_or_create_object` - update or create an object
+- `delete_object` - delete an object
+- `delete_object_by_id` - delete an object by id
+- `bulk_delete` - bulk delete objects
+- `bulk_delete_by_id` - bulk delete objects by id
+
+
+## Contributing
+
+This project is open for contributions. Feel free to open an issue or create a pull request.
+
 
 
 
