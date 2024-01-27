@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "hexfrost-simplecrud"
-version = "0.1.0"
-description = "library with operation like (get, create, update, delete) for SQLAlchemy ORM"
+version = "0.2.0"
+description = "Library with operation like (get, create, update, delete) for SQLAlchemy ORM"
 authors = ["Ilia Kaziamov <kaziamov@outlook.com>"]
 packages = [
     { include = "simplecrud" },
@@ -9,12 +9,14 @@ packages = [
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
-sqlalchemy = "^2.0.23"
-
+python = "^3.8"
+sqlalchemy = "^2.0.0"
+pytest-cov = "^4.1.0"
 
 [tool.poetry.group.dev.dependencies]
+flake8 = "^7.0.0"
 pytest = "^7.4.3"
+aiosqlite = "^0.19.0"
 
 [build-system]
 requires = ["poetry-core"]
