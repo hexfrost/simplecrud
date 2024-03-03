@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 # READ / GET
 
+
 async def get_object(model, filters: dict, conn: AsyncSession = None) -> object:
     """Get object from db"""
     query = select(model).filter_by(**filters)
@@ -34,7 +35,9 @@ async def get_all_with_filter(model, filters: dict, conn: AsyncSession = None) -
     return objects
 
 
-async def get_objects(model, filters: Dict, limit: int = 10, offset: int = 10, conn: AsyncSession = None) -> List[object]:
+async def get_objects(
+    model, filters: Dict, limit: int = 10, offset: int = 10, conn: AsyncSession = None
+) -> List[object]:
     """Get objects from db"""
     query = select(model).filter_by(**filters).limit(limit).offset(offset)
     async with conn:
@@ -53,6 +56,7 @@ async def get_or_create_object(model, params: dict, conn: AsyncSession = None) -
 
 # CREATE
 
+
 async def create_object(model, params, conn: AsyncSession = None) -> object:
     """Create object in db"""
     new_obj = model(**params)
@@ -68,6 +72,7 @@ async def bulk_create(model, data: List[Dict], conn: AsyncSession = None) -> Lis
 
 
 # UPDATE
+
 
 async def update_object(obj, params, conn: AsyncSession = None) -> object:
     """
@@ -104,7 +109,6 @@ async def update_object_by_id(model, id: int, params, conn: AsyncSession = None)
     return updated_obj
 
 
-# 
 # async def bulk_update(objects, params, conn: AsyncSession = None) -> List[object]:
 #     """Bulk update objects in db"""
 #     updated_objects = []
@@ -120,6 +124,7 @@ async def update_or_create_object(model, filters, params, conn: AsyncSession = N
 
 
 # DELETE
+
 
 async def delete_object(obj, conn: AsyncSession = None) -> bool:
     model = obj.__class__

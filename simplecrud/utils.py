@@ -3,7 +3,6 @@ import logging
 from functools import wraps
 
 
-
 def async_to_sync(func):
     """Decorator to convert async function to sync"""
 
