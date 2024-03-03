@@ -99,7 +99,7 @@ async def update_or_error(obj, params, conn: AsyncSession = None) -> object:
 
 async def update_object_by_id(model, id: int, params, conn: AsyncSession = None) -> object:
     """Update object in db by id"""
-    obj = await get_object(model, dict(id=id))
+    obj = await get_object(model, dict(id=id), conn=conn)
     updated_obj = await update_object(obj, params, conn=conn)
     return updated_obj
 
